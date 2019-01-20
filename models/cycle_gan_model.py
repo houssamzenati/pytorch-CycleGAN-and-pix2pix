@@ -202,9 +202,7 @@ class CycleGANModel(BaseModel):
         var = d_param + g_param
 
         reg = 0.5 * sum(torch.sum(g ** 2) for g in grads)
-        print('coucou')
         Jgrads = torch.autograd.grad(reg, var, retain_graph=True)
-        print('yo')
         final_grad = [g + 10 * j for j, g in zip(Jgrads, grads)]
         params = itertools.chain(self.netD_A.parameters(), self.netD_B.parameters(), self.netG_A.parameters(), self.netG_B.parameters())
 
