@@ -190,10 +190,8 @@ class CycleGANModel(BaseModel):
         self.backward_D_A()      # calculate gradients for D_A
         self.backward_D_B()      # calculate graidents for D_B
         # Get Grad
-        grad_d = torch.autograd.grad(self.loss_D, itertools.chain(self.netD_A.parameters(), self.netD_B.parameters()), create_graph=True)
+        grad_d = torch.autograd.grad(self.loss_D_A + self.loss_D_B, itertools.chain(self.netD_A.parameters(), self.netD_B.parameters()), create_graph=True)
         grad_g = torch.autograd.grad(self.loss_G, itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()), create_graph=True)
-
-        self.optimizer_D.step()  # update D_A and D_B's weights
 
         d_param = [d for d in itertools.chain(self.netD_A.parameters(), self.netD_B.parameters())]
         g_param = [g for g in itertools.chain(self.netG_A.parameters(), self.netG_B.parameters())]
@@ -202,9 +200,10 @@ class CycleGANModel(BaseModel):
         var = d_param + g_param
 
         reg = 0.5 * sum(torch.sum(g ** 2) for g in grads)
+        print('coucou')
         Jgrads = torch.autograd.grad(reg, var)
-
-        final_grad = [g + reg_param * j for j, g in zip(Jgrads, grads)]
+        print('yo')
+        final_grad = [g + 10 * j for j, g in zip(Jgrads, grads)]
         params = itertools.chain(self.netD_A.parameters(), self.netD_B.parameters(), self.netG_A.parameters(), self.netG_B.parameters())
 
         for p, g in zip(params, final_grad):
