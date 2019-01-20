@@ -183,6 +183,8 @@ class CycleGANModel(BaseModel):
         self.set_requires_grad([self.netD_A, self.netD_B], False)  # Ds require no gradients when optimizing Gs
         self.optimizer_G.zero_grad()  # set G_A and G_B's gradients to zero
         self.backward_G()             # calculate gradients for G_A and G_B
+        grad_g = torch.autograd.grad(self.loss_G, itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()),
+                                     create_graph=True)
 
         # D_A and D_B
         self.set_requires_grad([self.netD_A, self.netD_B], True)
@@ -191,7 +193,7 @@ class CycleGANModel(BaseModel):
         self.backward_D_B()      # calculate graidents for D_B
         # Get Grad
         grad_d = torch.autograd.grad(self.loss_D_A + self.loss_D_B, itertools.chain(self.netD_A.parameters(), self.netD_B.parameters()), create_graph=True)
-        grad_g = torch.autograd.grad(self.loss_G, itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()), create_graph=True)
+
 
         d_param = [d for d in itertools.chain(self.netD_A.parameters(), self.netD_B.parameters())]
         g_param = [g for g in itertools.chain(self.netG_A.parameters(), self.netG_B.parameters())]
